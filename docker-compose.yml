@@ -1,47 +1,135 @@
 # ═══════════════════════════════════════════════════════════
-#  Project Phoenix — Docker Compose
-#  One command to run the entire stack locally:
-#    docker compose up --build
+#  Project Phoenix — Cloud-Native Resilient Public Service
+#  Full Stack Orchestration (Postgres + Redis + SQS + API + Worker)
 # ═══════════════════════════════════════════════════════════
 
 services:
+  # 1. Relational Database (Safe throttled writes from worker)
+  postgres:
+    image: postgres:15-alpine
+    container_name: phoenix-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      POSTGRES_DB: ${POSTGRES_DB:-gov_portal}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./infra/scripts/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres} -d ${POSTGRES_DB:-gov_portal}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - phoenix-net
 
-  # ── Phoenix API (FastAPI + Uvicorn) ──
-  phoenix-api:
-    build: ./backend
-    container_name: phoenix-api-1
+  # 2. In-Memory Cache (Drafts, OTPs, Idempotency Locks)
+  redis:
+    image: redis:7-alpine
+    container_name: phoenix-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    networks:
+      - phoenix-net
+
+  # 3. Local SQS Mock (Absorbs 10k submission spikes locally)
+  sqs:
+    image: softwaremill/elasticmq-native:latest
+    container_name: phoenix-sqs
+    restart: unless-stopped
+    ports:
+      - "9324:9324" # SQS API Endpoint
+    volumes:
+      - ./infra/sqs/elasticmq.conf:/opt/elasticmq.conf:ro
+    networks:
+      - phoenix-net
+
+  # 3b. SQS Web Dashboard (Visual Queue Manager)
+  sqs-ui:
+    image: softwaremill/elasticmq-ui:latest
+    container_name: phoenix-sqs-ui
+    restart: unless-stopped
+    ports:
+      - "9325:3000" # Maps port 9325 to the web dashboard
+    environment:
+      - SQS_ENDPOINT=http://sqs:9324
+    depends_on:
+      - sqs
+    networks:
+      - phoenix-net
+
+  # 4. Stateless API Backend (FastAPI + Uvicorn)
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: phoenix-backend
+    restart: unless-stopped
     ports:
       - "3000:3000"
     environment:
-      - ENV=development
-      - PORT=3000
-      - REDIS_URL=redis://redis:6379/0
-      - CORS_ORIGINS=*
+      PORT: 3000
+      ENV: development
+      DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@postgres:5432/${POSTGRES_DB:-gov_portal}
+      REDIS_URL: redis://redis:6379/0
+      AWS_REGION: us-east-1
+      AWS_SQS_ENDPOINT: http://sqs:9324
+      SQS_QUEUE_URL: http://sqs:9324/000000000000/application-submissions
+      CORS_ORIGINS: "*"
     depends_on:
+      postgres:
+        condition: service_healthy
       redis:
         condition: service_healthy
-    restart: unless-stopped
+      sqs:
+        condition: service_started
     healthcheck:
       test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:3000/api/health')"]
       interval: 15s
       timeout: 3s
       retries: 3
       start_period: 5s
+    networks:
+      - phoenix-net
 
-  # ── Redis (Draft cache + OTP store + Idempotency cache) ──
-  redis:
-    image: redis:7-alpine
-    container_name: phoenix-redis
-    ports:
-      - "6379:6379"
-    volumes:
-      - redis_data:/data
+  # 5. Background SQS Worker
+  worker:
+    build:
+      context: ./worker
+      dockerfile: Dockerfile
+    container_name: phoenix-worker
     restart: unless-stopped
-    healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
-      interval: 10s
-      timeout: 3s
-      retries: 3
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@postgres:5432/${POSTGRES_DB:-gov_portal}
+      AWS_REGION: us-east-1
+      AWS_SQS_ENDPOINT: http://sqs:9324
+      SQS_QUEUE_URL: http://sqs:9324/000000000000/application-submissions
+    depends_on:
+      postgres:
+        condition: service_healthy
+      sqs:
+        condition: service_started
+    networks:
+      - phoenix-net
 
+# Volumes & Networks
 volumes:
+  postgres_data:
+    driver: local
   redis_data:
+    driver: local
+
+networks:
+  phoenix-net:
+    driver: bridge

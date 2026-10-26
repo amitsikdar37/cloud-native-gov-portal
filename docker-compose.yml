@@ -1,0 +1,103 @@
+services:
+  # 1. Relational Database (Safe throttled writes from worker)
+  postgres:
+    image: postgres:15-alpine
+    container_name: phoenix-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      POSTGRES_DB: ${POSTGRES_DB:-gov_portal}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./infra/scripts/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres} -d ${POSTGRES_DB:-gov_portal}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - phoenix-net
+
+  # 2. In-Memory Cache (Drafts, OTPs, Idempotency Locks)
+  redis:
+    image: redis:7-alpine
+    container_name: phoenix-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    networks:
+      - phoenix-net
+
+  # 3. Local SQS Mock (Absorbs 10k submission spikes locally)
+  sqs:
+    image: softwaremill/elasticmq-native:latest
+    container_name: phoenix-sqs
+    restart: unless-stopped
+    ports:
+      - "9324:9324" # SQS API Endpoint
+      - "9325:9325" # ElasticMQ Web UI for queue inspection
+    networks:
+      - phoenix-net
+
+  # 4. Stateless API Backend (Member 2)
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: phoenix-backend
+    restart: unless-stopped
+    ports:
+      - "5000:5000"
+    environment:
+      PORT: 5000
+      DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@postgres:5432/${POSTGRES_DB:-gov_portal}
+      REDIS_URL: redis://redis:6379
+      AWS_REGION: us-east-1
+      AWS_SQS_ENDPOINT: http://sqs:9324
+      SQS_QUEUE_URL: http://sqs:9324/000000000000/application-submissions
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      sqs:
+        condition: service_started
+    networks:
+      - phoenix-net
+
+  # 5. Background SQS Worker (Member 2)
+  worker:
+    build:
+      context: ./worker
+      dockerfile: Dockerfile
+    container_name: phoenix-worker
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@postgres:5432/${POSTGRES_DB:-gov_portal}
+      AWS_REGION: us-east-1
+      AWS_SQS_ENDPOINT: http://sqs:9324
+      SQS_QUEUE_URL: http://sqs:9324/000000000000/application-submissions
+    depends_on:
+      postgres:
+        condition: service_healthy
+      sqs:
+        condition: service_started
+    networks:
+      - phoenix-net
+
+# Volumes & Networks
+volumes:
+  postgres_data:
+    driver: local
+
+networks:
+  phoenix-net:
+    driver: bridge

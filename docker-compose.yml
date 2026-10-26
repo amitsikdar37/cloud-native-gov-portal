@@ -43,7 +43,22 @@ services:
     restart: unless-stopped
     ports:
       - "9324:9324" # SQS API Endpoint
-      - "9325:9325" # ElasticMQ Web UI for queue inspection
+    volumes:
+      - ./infra/sqs/elasticmq.conf:/opt/elasticmq.conf:ro
+    networks:
+      - phoenix-net
+
+  # 3b. SQS Web Dashboard (Visual Queue Manager)
+  sqs-ui:
+    image: softwaremill/elasticmq-ui:latest
+    container_name: phoenix-sqs-ui
+    restart: unless-stopped
+    ports:
+      - "9325:3000" # Maps port 9325 to the web dashboard
+    environment:
+      - SQS_ENDPOINT=http://sqs:9324
+    depends_on:
+      - sqs
     networks:
       - phoenix-net
 

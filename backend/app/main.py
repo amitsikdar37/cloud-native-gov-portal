@@ -40,7 +40,7 @@ logger = logging.getLogger("phoenix")
 #  Create the FastAPI Application
 # ══════════════════════════════════════════════════
 app = FastAPI(
-    title="Project Phoenix — Exam Registration API",
+    title="Exam Registration API",
     description=(
         "Cloud-native, zero-downtime backend for the National Examination "
         "Registration Portal. Handles OTP verification, form drafts, "

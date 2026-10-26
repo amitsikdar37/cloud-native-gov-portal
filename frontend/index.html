@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Exam Registration Portal — National Examination Services. Cloud-native, zero-downtime candidate application pipeline." />
+  <title>Exam Registration Portal — National Examination Services</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <!-- ═══════════════════════ HEADER ═══════════════════════ -->
+  <header class="header" id="header">
+    <div class="header__inner">
+      <!-- Left: Ministry of Education Logo -->
+      <div class="header__gov">
+        <img src="assets/ministry_of_education.png" alt="Ministry of Education | शिक्षा मंत्रालय" class="header__ministry-img" height="48" />
+      </div>
+
+      <!-- Center: Exam Registration Portal Logo -->
+      <div class="header__center">
+        <img src="assets/exam_logo.png" alt="Exam Registration Portal" class="header__portal-logo" height="50" />
+      </div>
+
+      <!-- Right: Digital India Logo -->
+      <div class="header__right">
+        <img src="assets/digital_india_real.png" alt="Digital India" class="header__digital-india" height="40" />
+      </div>
+    </div>
+  </header>
+
+  <!-- ═══════════════════ FIXED BACKGROUND WALLPAPER ═══════════════════ -->
+  <div class="bg-wallpaper" aria-hidden="true"></div>
+
+  <!-- ═══════════════════ MAIN ═══════════════════ -->
+  <main class="main">
+    <!-- ──── Step Progress Bar ──── -->
+    <nav class="stepper" id="stepper" aria-label="Registration Steps">
+      <div class="stepper__track">
+        <div class="stepper__fill" id="stepperFill"></div>
+      </div>
+      <ol class="stepper__list">
+        <li class="stepper__item active" data-step="1">
+          <span class="stepper__circle">1</span>
+          <span class="stepper__label">1: Personal Details</span>
+        </li>
+        <li class="stepper__item" data-step="2">
+          <span class="stepper__circle">2</span>
+          <span class="stepper__label">2: Academic Details</span>
+        </li>
+        <li class="stepper__item" data-step="3">
+          <span class="stepper__circle">3</span>
+          <span class="stepper__label">3: Document Upload</span>
+        </li>
+        <li class="stepper__item" data-step="4">
+          <span class="stepper__circle">4</span>
+          <span class="stepper__label">4: Final Review</span>
+        </li>
+      </ol>
+    </nav>
+
+    <!-- ──── Form Card (Light Frosted Slate matching screenshot) ──── -->
+    <section class="card" id="formCard">
+      <div class="card__top-bar">
+        <span class="card__tag">PORTAL APPLICATION FORM</span>
+        <button type="button" id="btnDemoFill" class="btn btn--demo">⚡ Auto-Fill Demo Data</button>
+      </div>
+
+      <form id="applicationForm" novalidate autocomplete="off">
+
+        <!-- ════════ STEP 1: Personal Details ════════ -->
+        <fieldset class="step step--visible" id="step1" data-step="1">
+          <legend class="step__title">Personal Information</legend>
+          <p class="step__desc">Provide your personal details as they appear on official documents.</p>
+
+          <div class="field-grid">
+            <!-- Full Name with User Icon -->
+            <div class="field" id="field-fullName">
+              <label class="field__label" for="fullName">Full Name <span class="req">*</span></label>
+              <div class="field__input-wrap">
+                <svg class="field__icon-left" viewBox="0 0 20 20" fill="currentColor" width="18" height="18">
+                  <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd" />
+                </svg>
+                <input class="field__input field__input--with-icon" type="text" id="fullName" name="fullName" placeholder="e.g. Aarav Sharma" required minlength="2" maxlength="100" />
+              </div>
+              <span class="field__error" id="err-fullName"></span>
+            </div>
+
+            <!-- Email Address with Mail Icon -->
+            <div class="field" id="field-email">
+              <label class="field__label" for="email">Email Address <span class="req">*</span></label>
+              <div class="field__input-wrap">
+                <svg class="field__icon-left" viewBox="0 0 20 20" fill="currentColor" width="18" height="18">
+                  <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z" />
+                  <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z" />
+                </svg>
+                <input class="field__input field__input--with-icon" type="email" id="email" name="email" placeholder="e.g. aarav.sharma@example.gov.in" required />
+              </div>
+              <span class="field__error" id="err-email"></span>
+            </div>
+
+            <!-- Phone Number with Phone Icon -->
+            <div class="field" id="field-phone">
+              <label class="field__label" for="phone">Phone Number <span class="req">*</span></label>
+              <div class="field__input-wrap">
+                <svg class="field__icon-left" viewBox="0 0 20 20" fill="currentColor" width="18" height="18">
+                  <path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 4V3z" />
+                </svg>
+                <input class="field__input field__input--with-icon" type="tel" id="phone" name="phone" placeholder="e.g. 9876543210" required pattern="[0-9]{10}" maxlength="10" />
+              </div>
+              <span class="field__error" id="err-phone"></span>
+            </div>
+
+            <!-- Date of Birth with Calendar picker -->
+            <div class="field" id="field-dob">
+              <label class="field__label" for="dob">Date of Birth <span class="req">*</span></label>
+              <input class="field__input" type="date" id="dob" name="dob" required />
+              <span class="field__error" id="err-dob"></span>
+            </div>
+
+            <!-- Gender -->
+            <div class="field" id="field-gender">
+              <label class="field__label" for="gender">Gender <span class="req">*</span></label>
+              <select class="field__input" id="gender" name="gender" required>
+                <option value="" disabled selected>Select gender</option>
+                <option value="Male">Male</option>
+                <option value="Female">Female</option>
+                <option value="Other">Other</option>
+              </select>
+              <span class="field__error" id="err-gender"></span>
+            </div>
+
+            <!-- Aadhaar Number with ID Card Icon -->
+            <div class="field" id="field-aadhaar">
+              <label class="field__label" for="aadhaar">Aadhaar Number <span class="req">*</span></label>
+              <div class="field__input-wrap">
+                <svg class="field__icon-left" viewBox="0 0 20 20" fill="currentColor" width="18" height="18">
+                  <path fill-rule="evenodd" d="M10 2a1 1 0 00-1 1v1a1 1 0 002 0V3a1 1 0 00-1-1zM4 4h3a3 3 0 016 0h3a2 2 0 012 2v9a2 2 0 01-2 2H4a2 2 0 01-2-2V6a2 2 0 012-2zm2.5 7a1.5 1.5 0 100-3 1.5 1.5 0 000 3zm2.45 4a2.5 2.5 0 00-4.9 0h4.9zM12 9a1 1 0 100 2h3a1 1 0 100-2h-3zm1 4a1 1 0 011-1h2a1 1 0 110 2h-2a1 1 0 01-1-1z" clip-rule="evenodd" />
+                </svg>
+                <input class="field__input field__input--with-icon" type="text" id="aadhaar" name="aadhaar" placeholder="e.g. 1234 5678 9012" required pattern="[0-9\s]{12,14}" maxlength="14" />
+              </div>
+              <span class="field__error" id="err-aadhaar"></span>
+            </div>
+          </div>
+
+          <!-- OTP Verification Section -->
+          <div class="otp-section" id="otpSection">
+            <div class="otp-header">
+              <button class="btn btn--outline btn--sm" type="button" id="btnSendOtp">
+                <svg class="btn__icon" viewBox="0 0 20 20" fill="currentColor" width="16" height="16"><path d="M2.94 6.44A2 2 0 0 1 4.88 5h10.24a2 2 0 0 1 1.94 1.44L10 11.12 2.94 6.44ZM2 8.07V14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8.07l-7.47 4.98a1 1 0 0 1-1.06 0L2 8.07Z"/></svg>
+                Send OTP to Email
+              </button>
+              <span class="otp-hint">(Required for verification &bull; Offline OTP: <strong>123456</strong>)</span>
+            </div>
+            <div class="otp-input-group hidden" id="otpInputGroup">
+              <input class="field__input field__input--otp" type="text" id="otpCode" name="otpCode" placeholder="Enter 6-digit OTP" maxlength="6" pattern="[0-9]{6}" />
+              <button class="btn btn--accent btn--sm" type="button" id="btnVerifyOtp">Verify</button>
+              <span class="otp-timer" id="otpTimer"></span>
+            </div>
+            <span class="field__success hidden" id="otpSuccess">✓ Email verified successfully</span>
+            <span class="field__error" id="err-otp"></span>
+          </div>
+        </fieldset>
+
+        <!-- ════════ STEP 2: Academic Details ════════ -->
+        <fieldset class="step" id="step2" data-step="2">
+          <legend class="step__title">Academic Information</legend>
+          <p class="step__desc">Enter your highest educational qualification details.</p>
+
+          <div class="field-grid">
+            <div class="field" id="field-qualification">
+              <label class="field__label" for="qualification">Highest Qualification <span class="req">*</span></label>
+              <select class="field__input" id="qualification" name="qualification" required>
+                <option value="" disabled selected>Select qualification</option>
+                <option value="10th">10th Standard</option>
+                <option value="12th">12th Standard</option>
+                <option value="Diploma">Diploma</option>
+                <option value="Bachelors">Bachelor's Degree</option>
+                <option value="Masters">Master's Degree</option>
+                <option value="PhD">Doctorate (Ph.D.)</option>
+              </select>
+              <span class="field__error" id="err-qualification"></span>
+            </div>
+
+            <div class="field" id="field-institution">
+              <label class="field__label" for="institution">Institution Name <span class="req">*</span></label>
+              <input class="field__input" type="text" id="institution" name="institution" placeholder="e.g. Indian Institute of Technology Delhi" required minlength="2" maxlength="200" />
+              <span class="field__error" id="err-institution"></span>
+            </div>
+
+            <div class="field" id="field-yearOfPassing">
+              <label class="field__label" for="yearOfPassing">Year of Passing <span class="req">*</span></label>
+              <input class="field__input" type="number" id="yearOfPassing" name="yearOfPassing" placeholder="e.g. 2024" required min="1970" max="2030" />
+              <span class="field__error" id="err-yearOfPassing"></span>
+            </div>
+
+            <div class="field" id="field-percentage">
+              <label class="field__label" for="percentage">Percentage / CGPA <span class="req">*</span></label>
+              <input class="field__input" type="text" id="percentage" name="percentage" placeholder="e.g. 88.5% or 8.85 CGPA" required />
+              <span class="field__error" id="err-percentage"></span>
+            </div>
+
+            <div class="field field--full" id="field-specialization">
+              <label class="field__label" for="specialization">Specialization / Stream</label>
+              <input class="field__input" type="text" id="specialization" name="specialization" placeholder="e.g. Computer Science &amp; Engineering" maxlength="150" />
+            </div>
+          </div>
+        </fieldset>
+
+        <!-- ════════ STEP 3: Document Uploads ════════ -->
+        <fieldset class="step" id="step3" data-step="3">
+          <legend class="step__title">Document Uploads</legend>
+          <p class="step__desc">Upload your passport photo and signature. Files are transferred securely to Cloud Storage.</p>
+
+          <div class="upload-grid">
+            <!-- Passport Photo -->
+            <div class="upload-zone" id="uploadZonePhoto">
+              <div class="upload-zone__preview" id="previewPhoto">
+                <svg class="upload-zone__icon" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.5">
+                  <rect x="6" y="10" width="36" height="28" rx="4"/>
+                  <circle cx="18" cy="22" r="4"/>
+                  <path d="M6 34 l10-8 6 4 10-10 10 10"/>
+                </svg>
+              </div>
+              <div class="upload-zone__info">
+                <h3 class="upload-zone__title">Passport Photo <span class="req">*</span></h3>
+                <p class="upload-zone__hint">JPG or PNG, max 2 MB, white background</p>
+                <label class="btn btn--outline btn--sm upload-zone__btn" for="filePhoto">
+                  Choose File
+                </label>
+                <input type="file" id="filePhoto" name="photo" accept="image/jpeg,image/png" class="sr-only" />
+                <div class="upload-zone__progress hidden" id="progressPhoto">
+                  <div class="progress-bar"><div class="progress-bar__fill" id="progressFillPhoto"></div></div>
+                  <span class="progress-text" id="progressTextPhoto">0%</span>
+                </div>
+                <span class="field__success hidden" id="successPhoto">✓ Uploaded successfully</span>
+                <span class="field__error" id="err-photo"></span>
+              </div>
+            </div>
+
+            <!-- Signature -->
+            <div class="upload-zone" id="uploadZoneSignature">
+              <div class="upload-zone__preview" id="previewSignature">
+                <svg class="upload-zone__icon" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.5">
+                  <path d="M8 40 C16 28, 20 36, 24 32 S32 24, 40 28"/>
+                  <path d="M36 8 l6 6 -20 20 -6 0 0 -6 Z"/>
+                </svg>
+              </div>
+              <div class="upload-zone__info">
+                <h3 class="upload-zone__title">Signature <span class="req">*</span></h3>
+                <p class="upload-zone__hint">JPG or PNG, max 1 MB, clear contrast</p>
+                <label class="btn btn--outline btn--sm upload-zone__btn" for="fileSignature">
+                  Choose File
+                </label>
+                <input type="file" id="fileSignature" name="signature" accept="image/jpeg,image/png" class="sr-only" />
+                <div class="upload-zone__progress hidden" id="progressSignature">
+                  <div class="progress-bar"><div class="progress-bar__fill" id="progressFillSignature"></div></div>
+                  <span class="progress-text" id="progressTextSignature">0%</span>
+                </div>
+                <span class="field__success hidden" id="successSignature">✓ Uploaded successfully</span>
+                <span class="field__error" id="err-signature"></span>
+              </div>
+            </div>
+          </div>
+        </fieldset>
+
+        <!-- ════════ STEP 4: Review & Submit ════════ -->
+        <fieldset class="step" id="step4" data-step="4">
+          <legend class="step__title">Review &amp; Submit</legend>
+          <p class="step__desc">Please verify all details before final submission. Click any section header to edit.</p>
+
+          <div class="review-sections" id="reviewSections">
+            <!-- Populated by JS -->
+          </div>
+
+          <div class="submit-agreement">
+            <label class="checkbox-label" for="agreeTerms">
+              <input type="checkbox" id="agreeTerms" name="agreeTerms" />
+              <span class="checkbox-custom"></span>
+              I declare that all information provided is true and correct to the best of my knowledge. <span class="req">*</span>
+            </label>
+            <span class="field__error" id="err-agreeTerms"></span>
+          </div>
+        </fieldset>
+
+        <!-- ──── Navigation Buttons (Matching Target Screenshot) ──── -->
+        <div class="form-nav" id="formNav">
+          <div class="form-nav__left">
+            <button class="btn btn--nav-ghost" type="button" id="btnPrev" disabled>Back</button>
+            <button class="btn btn--nav-ghost" type="button" id="btnReset">Reset</button>
+          </div>
+          <div class="form-nav__right">
+            <span class="draft-status" id="draftStatus">
+              <svg class="draft-status__icon" viewBox="0 0 16 16" fill="currentColor" width="14" height="14"><path d="M8 1a7 7 0 100 14A7 7 0 008 1zm0 12.5a5.5 5.5 0 110-11 5.5 5.5 0 010 11zM7 4.5v4l3.5 2 .75-1.23L8.5 7.5V4.5H7z"/></svg>
+              <span id="draftStatusText">Draft auto-saved</span>
+            </span>
+            <button class="btn btn--save-continue" type="button" id="btnNext">Save &amp; Continue</button>
+            <button class="btn btn--submit hidden" type="button" id="btnSubmit">
+              <svg class="btn__icon" viewBox="0 0 20 20" fill="currentColor" width="18" height="18"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"/></svg>
+              Submit Application
+            </button>
+          </div>
+        </div>
+      </form>
+    </section>
+  </main>
+
+  <!-- ═══════════════════ SUCCESS MODAL ═══════════════════ -->
+  <div class="modal-overlay hidden" id="successModal">
+    <div class="modal">
+      <div class="modal__icon">
+        <svg viewBox="0 0 64 64" fill="none" width="64" height="64">
+          <circle cx="32" cy="32" r="30" stroke="var(--success)" stroke-width="3"/>
+          <path d="M20 33 L28 41 L44 25" stroke="var(--success)" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" class="modal__check"/>
+        </svg>
+      </div>
+      <h2 class="modal__title">Application Submitted!</h2>
+      <p class="modal__text">Your application has been received and queued securely. You will receive a confirmation email shortly.</p>
+      <div class="modal__ref">
+        <span class="modal__ref-label">Reference ID</span>
+        <code class="modal__ref-code" id="refCode">ERP-000000</code>
+      </div>
+      <button class="btn btn--save-continue" id="btnNewApplication" style="margin-top: 1rem;">Start New Application</button>
+    </div>
+  </div>
+
+  <!-- ═══════════════════ LOADING OVERLAY ═══════════════════ -->
+  <div class="loading-overlay hidden" id="loadingOverlay">
+    <div class="spinner"></div>
+    <p class="loading-text" id="loadingText">Submitting your application…</p>
+  </div>
+
+  <!-- ═══════════════════ TOAST CONTAINER ═══════════════════ -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <footer class="footer">
+    <p>&copy; 2026 Exam Registration Portal &middot; Ministry of Education &middot; Government of India</p>
+  </footer>
+
+  <script src="js/app.js" defer></script>
+</body>
+</html>

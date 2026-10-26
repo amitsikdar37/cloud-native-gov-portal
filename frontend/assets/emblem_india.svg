@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 260" width="48" height="62">
+  <!-- Ashoka Lion Capital Vector Silhouette -->
+  <g fill="#2d3748">
+    <!-- Capital Top Platform -->
+    <path d="M45,115 Q100,105 155,115 L158,135 Q100,128 42,135 Z"/>
+    <!-- Central Wheel (Ashoka Chakra) on abacus -->
+    <circle cx="100" cy="155" r="14" fill="none" stroke="#2d3748" stroke-width="2.5"/>
+    <circle cx="100" cy="155" r="3" fill="#2d3748"/>
+    <!-- Galloping Horse left, Bull right stylized -->
+    <path d="M55,148 Q65,140 75,152 Q82,160 70,165 Q60,165 55,148 Z"/>
+    <path d="M145,148 Q135,140 125,152 Q118,160 130,165 Q140,165 145,148 Z"/>
+    <!-- Abacus Base -->
+    <path d="M35,170 Q100,165 165,170 L170,182 Q100,175 30,182 Z"/>
+    <!-- Lotus Base -->
+    <path d="M40,185 Q100,225 160,185 Q145,215 100,222 Q55,215 40,185 Z"/>
+    <!-- Central Lion Head & Mane -->
+    <path d="M85,35 Q100,20 115,35 Q125,48 122,65 Q128,75 125,95 Q115,110 100,112 Q85,110 75,95 Q72,75 78,65 Q75,48 85,35 Z"/>
+    <!-- Left Lion Head & Profile -->
+    <path d="M50,45 Q65,30 75,45 Q78,55 75,70 Q60,78 50,90 Q40,80 45,60 Q45,50 50,45 Z"/>
+    <!-- Right Lion Head & Profile -->
+    <path d="M150,45 Q135,30 125,45 Q122,55 125,70 Q140,78 150,90 Q160,80 155,60 Q155,50 150,45 Z"/>
+    <!-- Lion Eyes & Muzzle details -->
+    <circle cx="94" cy="55" r="2.5" fill="#ffffff"/>
+    <circle cx="106" cy="55" r="2.5" fill="#ffffff"/>
+    <path d="M96,65 L104,65 L100,72 Z" fill="#ffffff"/>
+    <path d="M92,80 Q100,85 108,80" stroke="#ffffff" stroke-width="2" fill="none"/>
+    <!-- Satyameva Jayate text banner -->
+    <text x="100" y="248" font-family="'Inter', sans-serif" font-size="16" font-weight="bold" text-anchor="middle" letter-spacing="1">सत्यमेव जयते</text>
+  </g>
+</svg>

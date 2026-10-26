@@ -1,0 +1,47 @@
+# ═══════════════════════════════════════════════════════════
+#  Project Phoenix — Docker Compose
+#  One command to run the entire stack locally:
+#    docker compose up --build
+# ═══════════════════════════════════════════════════════════
+
+services:
+
+  # ── Phoenix API (FastAPI + Uvicorn) ──
+  phoenix-api:
+    build: ./backend
+    container_name: phoenix-api-1
+    ports:
+      - "3000:3000"
+    environment:
+      - ENV=development
+      - PORT=3000
+      - REDIS_URL=redis://redis:6379/0
+      - CORS_ORIGINS=*
+    depends_on:
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:3000/api/health')"]
+      interval: 15s
+      timeout: 3s
+      retries: 3
+      start_period: 5s
+
+  # ── Redis (Draft cache + OTP store + Idempotency cache) ──
+  redis:
+    image: redis:7-alpine
+    container_name: phoenix-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+
+volumes:
+  redis_data:

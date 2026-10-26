@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 260 70" width="130" height="38">
+  <!-- Digital India Logo -->
+  <g>
+    <!-- Tricolor Stylized 'i' -->
+    <!-- Orange flame/saffron top dot -->
+    <circle cx="28" cy="16" r="7" fill="#FF9933"/>
+    <!-- Blue central swoosh/body -->
+    <path d="M24,28 Q15,42 22,56 Q28,62 34,54 Q38,44 32,32 Z" fill="#000080"/>
+    <!-- Green base swoosh -->
+    <path d="M16,52 Q26,62 38,58 Q34,65 24,66 Q16,65 16,52 Z" fill="#138808"/>
+    <!-- Text: Digital -->
+    <text x="48" y="32" font-family="'Inter', 'Arial', sans-serif" font-size="22" font-weight="800" fill="#000080" letter-spacing="-0.5">Digital</text>
+    <!-- Text: India -->
+    <text x="120" y="32" font-family="'Inter', 'Arial', sans-serif" font-size="22" font-weight="800" fill="#FF9933" letter-spacing="-0.5">India</text>
+    <!-- Tagline: Power To Empower -->
+    <text x="50" y="47" font-family="'Inter', 'Arial', sans-serif" font-size="9" font-weight="600" fill="#64748b" letter-spacing="0.5">Power To Empower</text>
+  </g>
+</svg>

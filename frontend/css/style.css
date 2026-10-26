@@ -147,9 +147,9 @@ body {
   width: 100vw;
   height: 100vh;
   background-color: #040e28;
-  background-image: url('../assets/gov_portal_bg.jpg');
+  background-image: url('../assets/gov_portal_bg.jpg?v=hq');
   background-repeat: no-repeat;
-  background-position: center top;
+  background-position: center center;
   background-size: cover;
   pointer-events: none;
   z-index: 0;

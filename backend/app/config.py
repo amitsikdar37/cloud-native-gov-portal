@@ -30,9 +30,18 @@ class Settings:
     DRAFT_TTL_SECONDS: int = int(os.getenv("DRAFT_TTL_SECONDS", "86400"))  # 24 hours
 
     # ── AWS S3 (for pre-signed upload URLs) ──
-    AWS_REGION: str = os.getenv("AWS_REGION", "ap-south-1")
+    AWS_REGION: str = os.getenv("AWS_REGION", "us-east-1")
+    AWS_ACCESS_KEY_ID: str = os.getenv("AWS_ACCESS_KEY_ID", "mock_key")
+    AWS_SECRET_ACCESS_KEY: str = os.getenv("AWS_SECRET_ACCESS_KEY", "mock_secret")
     S3_BUCKET: str = os.getenv("S3_BUCKET", "phoenix-uploads")
     S3_UPLOAD_EXPIRY: int = int(os.getenv("S3_UPLOAD_EXPIRY", "300"))  # 5 min
+
+    # ── AWS SQS (for async submission buffering) ──
+    AWS_SQS_ENDPOINT: str = os.getenv("AWS_SQS_ENDPOINT", "")  # e.g. http://sqs:9324 for ElasticMQ
+    SQS_QUEUE_URL: str = os.getenv(
+        "SQS_QUEUE_URL", "http://sqs:9324/000000000000/application-submissions"
+    )
+    SQS_QUEUE_NAME: str = os.getenv("SQS_QUEUE_NAME", "application-submissions")
 
     # ── Rate Limiting ──
     RATE_LIMIT_REQUESTS: int = int(os.getenv("RATE_LIMIT_REQUESTS", "60"))

@@ -14,31 +14,71 @@
 ═══════════════════════════════════════════════════════════════════
 """
 
+import json
 import time
 import threading
 from typing import Any, Optional
 from collections import defaultdict
+import logging
 
 from app.config import settings
+
+logger = logging.getLogger("phoenix.store")
 
 
 class TTLStore:
     """
-    Thread-safe key-value store with per-key TTL expiry.
-    Acts as a lightweight Redis replacement for development.
+    Hybrid Redis + in-memory store.
+    Uses Redis when REDIS_URL is provided, with seamless in-memory fallback.
     """
 
     def __init__(self):
         self._data: dict[str, tuple[Any, float]] = {}  # key -> (value, expires_at)
         self._lock = threading.Lock()
+        self._redis = None
+
+        if settings.REDIS_URL:
+            try:
+                import redis
+                self._redis = redis.from_url(
+                    settings.REDIS_URL,
+                    decode_responses=True,
+                    socket_connect_timeout=2.0,
+                    socket_timeout=2.0,
+                )
+                self._redis.ping()
+                logger.info("Connected to Redis at %s", settings.REDIS_URL)
+            except Exception as e:
+                logger.warning("Redis unavailable (%s), falling back to in-memory TTLStore", e)
+                self._redis = None
 
     def set(self, key: str, value: Any, ttl: int) -> None:
         """Store a value with TTL in seconds."""
+        if self._redis:
+            try:
+                serialized = json.dumps(value) if not isinstance(value, (str, int, float, bool)) else str(value)
+                self._redis.set(key, serialized, ex=ttl)
+                return
+            except Exception as e:
+                logger.warning("Redis set failed for %s (%s), writing to memory fallback", key, e)
+
         with self._lock:
             self._data[key] = (value, time.time() + ttl)
 
     def get(self, key: str) -> Optional[Any]:
         """Get value if key exists and hasn't expired."""
+        if self._redis:
+            try:
+                val = self._redis.get(key)
+                if val is None:
+                    return None
+                try:
+                    return json.loads(val)
+                except Exception:
+                    return val
+            except Exception as e:
+                logger.warning("Redis get failed for %s (%s), reading from memory fallback", key, e)
+
         with self._lock:
             if key not in self._data:
                 return None
@@ -50,6 +90,11 @@ class TTLStore:
 
     def delete(self, key: str) -> None:
         """Remove a key."""
+        if self._redis:
+            try:
+                self._redis.delete(key)
+            except Exception:
+                pass
         with self._lock:
             self._data.pop(key, None)
 

@@ -21,9 +21,12 @@
 ═══════════════════════════════════════════════════════════════════
 """
 
+import json
+import logging
 import time
 import uuid
 
+import boto3
 from fastapi import APIRouter, Header, Request
 from fastapi.responses import JSONResponse
 
@@ -32,6 +35,39 @@ from app.models import SubmitRequest, SubmitResponse
 from app.store import idempotency_store, submission_queue, rate_limiter
 
 router = APIRouter()
+logger = logging.getLogger("phoenix.submit")
+
+_sqs_client = None
+_sqs_queue_url = None
+
+
+def get_sqs():
+    """Lazily initialize SQS client and queue URL."""
+    global _sqs_client, _sqs_queue_url
+    if _sqs_client is None:
+        try:
+            kwargs = {"region_name": settings.AWS_REGION}
+            if settings.AWS_SQS_ENDPOINT:
+                kwargs["endpoint_url"] = settings.AWS_SQS_ENDPOINT
+            if settings.AWS_ACCESS_KEY_ID:
+                kwargs["aws_access_key_id"] = settings.AWS_ACCESS_KEY_ID
+                kwargs["aws_secret_access_key"] = settings.AWS_SECRET_ACCESS_KEY
+
+            client = boto3.client("sqs", **kwargs)
+            # Test connectivity / resolve queue URL
+            q_url = settings.SQS_QUEUE_URL
+            if not q_url:
+                res = client.get_queue_url(QueueName=settings.SQS_QUEUE_NAME)
+                q_url = res.get("QueueUrl")
+
+            _sqs_client = client
+            _sqs_queue_url = q_url
+        except Exception as e:
+            logger.warning("SQS client init failed (%s); using in-memory queue", e)
+            _sqs_client = None
+            _sqs_queue_url = None
+
+    return _sqs_client, _sqs_queue_url
 
 
 def generate_reference_id() -> str:
@@ -109,16 +145,31 @@ async def submit_application(
             ttl=settings.IDEMPOTENCY_TTL_SECONDS,
         )
 
-    # ── Enqueue for async processing ──
-    # In production: SQS.send_message(QueueUrl=..., MessageBody=...)
-    # Here we use our in-memory queue
-    submission_queue.enqueue({
+    # ── Enqueue for async processing (SQS -> PostgreSQL Worker) ──
+    payload = {
         "referenceId": reference_id,
         "data": body.model_dump(),
-        "idempotencyKey": x_idempotency_key,
+        "idempotencyKey": x_idempotency_key or reference_id,
         "submittedAt": time.time(),
         "clientIp": client_ip,
-    })
+    }
+
+    enqueued_to_sqs = False
+    sqs_client, q_url = get_sqs()
+    if sqs_client and q_url:
+        try:
+            sqs_client.send_message(
+                QueueUrl=q_url,
+                MessageBody=json.dumps(payload),
+            )
+            enqueued_to_sqs = True
+            logger.info("Enqueued submission %s to SQS at %s", reference_id, q_url)
+        except Exception as e:
+            logger.warning("Failed to push to SQS (%s); falling back to in-memory queue", e)
+
+    if not enqueued_to_sqs:
+        submission_queue.enqueue(payload)
+        logger.info("Enqueued submission %s to in-memory queue", reference_id)
 
     # ── Return 202 Accepted (async pattern) ──
     return JSONResponse(

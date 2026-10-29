@@ -1,6 +1,6 @@
 # ═══════════════════════════════════════════════════════════
 #  Project Phoenix — Background Worker Dockerfile
-#  Consumes SQS messages and safely batches writes to PostgreSQL
+#  Stateless, Least-Privilege Non-Root Consumer
 # ═══════════════════════════════════════════════════════════
 
 FROM python:3.13-slim
@@ -10,12 +10,13 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 
 WORKDIR /app
 
-# Install dependencies first for cached layer
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy application source
-COPY . .
+RUN groupadd -r appgroup && useradd -r -g appgroup -d /app appuser
 
-# Run the worker process
+COPY --chown=appuser:appgroup . .
+
+USER appuser
+
 CMD ["python", "main.py"]
